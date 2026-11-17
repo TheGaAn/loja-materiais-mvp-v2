@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block titulo %}Estoque - Materiais Sao Jose{% endblock %}
+{% block conteudo %}
+<h1 class="h4 mb-3">Estoque e alertas</h1>
+
+<div class="alert alerta-minimo d-flex flex-wrap gap-4" role="alert">
+  <span><strong>&#9888; {{ criticos }}</strong> item(ns) no estoque minimo</span>
+  <span><strong>&#9203; {{ sem_saida }}</strong> item(ns) sem saida em 30 dias</span>
+</div>
+
+<div class="d-flex flex-wrap gap-2 mb-4">
+  <a class="btn {{ 'btn-principal' if situacao == 'todos' else 'btn-outline-secondary' }}" href="/estoque?situacao=todos">Todos</a>
+  <a class="btn {{ 'btn-principal' if situacao == 'minimo' else 'btn-outline-secondary' }}" href="/estoque?situacao=minimo">No minimo</a>
+  <a class="btn {{ 'btn-principal' if situacao == 'sem_saida' else 'btn-outline-secondary' }}" href="/estoque?situacao=sem_saida">Sem saida</a>
+  <a class="btn btn-outline-secondary ms-auto" href="/relatorio">Relatorio de giro</a>
+</div>
+
+<div class="table-responsive">
+  <table class="table tabela align-middle">
+    <caption class="visually-hidden">Saldo por produto com situacao e ultima saida</caption>
+    <thead>
+      <tr><th scope="col">Produto</th><th scope="col" class="text-end">Saldo</th><th scope="col" class="text-end">Minimo</th>
+          <th scope="col">Situacao</th><th scope="col">Ultima saida</th><th scope="col"></th></tr>
+    </thead>
+    <tbody>
+      {% for p in produtos %}
+      <tr class="{{ 'table-warning' if p.estoque_atual <= p.estoque_minimo else '' }}">
+        <td>{{ p.nome }}</td>
+        <td class="text-end">{{ p.estoque_atual|g }}</td>
+        <td class="text-end">{{ p.estoque_minimo|g }}</td>
+        <td>{% if p.estoque_atual <= p.estoque_minimo %}<strong>no minimo</strong>{% else %}ok{% endif %}</td>
+        <td>{{ p.ultima_saida or "sem saida registrada" }}</td>
+        <td class="text-end">
+          <form method="post" action="/produtos/{{ p.id }}/entrada" class="d-flex gap-2 justify-content-end m-0">
+            <label class="visually-hidden" for="qtd-{{ p.id }}">Quantidade de entrada de {{ p.nome }}</label>
+            <input class="form-control form-control-sm foco" style="max-width:100px" id="qtd-{{ p.id }}" name="quantidade" type="number" step="0.001" min="0.001" placeholder="qtd" required>
+            <button class="btn btn-sm btn-outline-secondary" type="submit">Registrar entrada</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6">Nenhum produto nesta situacao.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<p class="text-muted small">Situacao descrita em texto e cor. Cabecalhos associados as celulas. Navegacao por teclado.</p>
+{% endblock %}

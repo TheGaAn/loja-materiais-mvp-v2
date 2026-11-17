@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block titulo %}Orcamento #{{ orc.id }} - Materiais Sao Jose{% endblock %}
+{% block conteudo %}
+<div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+  <h1 class="h4 mb-0">Orcamento #{{ orc.id }}</h1>
+  <span class="badge text-bg-secondary">{{ orc.status }}</span>
+  <a class="btn btn-outline-secondary ms-auto" href="/">Voltar ao inicio</a>
+</div>
+
+{% if erro %}<div class="alert alert-danger" role="alert">{{ erro }}</div>{% endif %}
+
+<div class="card card-body shadow-sm mb-4">
+  <p class="mb-1"><span class="rotulo">Cliente:</span> {{ orc.cliente }}{% if orc.telefone %} - {{ orc.telefone }}{% endif %}</p>
+  <p class="mb-1"><span class="rotulo">Data:</span> {{ orc.criado_em }}</p>
+  {% if orc.observacao %}<p class="mb-1"><span class="rotulo">Observacao:</span> {{ orc.observacao }}</p>{% endif %}
+</div>
+
+<div class="table-responsive mb-4">
+  <table class="table tabela align-middle">
+    <caption class="visually-hidden">Itens do orcamento</caption>
+    <thead>
+      <tr><th scope="col">Produto</th><th scope="col" class="text-end">Qtd</th>
+          <th scope="col" class="text-end">Preco un.</th><th scope="col" class="text-end">Subtotal</th></tr>
+    </thead>
+    <tbody>
+      {% for i in itens %}
+      <tr>
+        <td>{{ i.nome }} ({{ i.unidade }})</td>
+        <td class="text-end">{{ i.quantidade|g }}</td>
+        <td class="text-end">R$ {{ "%.2f"|format(i.preco_unitario) }}</td>
+        <td class="text-end">R$ {{ "%.2f"|format(i.subtotal) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <th scope="row" colspan="3" class="text-end">Total</th>
+        <th class="text-end">R$ {{ "%.2f"|format(orc.total) }}</th>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+<div class="d-flex flex-wrap gap-2">
+  <a class="btn btn-outline-secondary" href="/orcamentos/{{ orc.id }}/pdf" target="_blank" rel="noopener">Gerar PDF</a>
+  {% if orc.status != 'fechado' %}
+  <form method="post" action="/orcamentos/{{ orc.id }}/fechar" class="m-0">
+    <button class="btn btn-principal" type="submit">Fechar venda e baixar estoque</button>
+  </form>
+  {% else %}
+  <div class="alert alert-success mb-0">Venda fechada. O estoque ja foi baixado e o movimento registrado.</div>
+  {% endif %}
+</div>
+{% endblock %}

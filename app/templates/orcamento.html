@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block titulo %}Novo orcamento - Materiais Sao Jose{% endblock %}
+{% block conteudo %}
+<h1 class="h4 mb-4">Novo orcamento</h1>
+
+{% if erro %}<div class="alert alert-danger">{{ erro }}</div>{% endif %}
+
+<form method="post" action="/orcamentos" class="card card-body shadow-sm">
+  <div class="row g-3">
+    <div class="col-12 col-md-6">
+      <label class="rotulo" for="cliente_id">Cliente</label>
+      <select class="form-select foco" id="cliente_id" name="cliente_id" required>
+        {% for c in clientes %}
+        <option value="{{ c.id }}">{{ c.nome }}{% if c.telefone %} - {{ c.telefone }}{% endif %}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-12 col-md-3">
+      <label class="rotulo" for="desconto">Desconto (R$)</label>
+      <input class="form-control foco" id="desconto" name="desconto" type="number" step="0.01" min="0" value="0">
+      <div class="form-text">Limite de 10% e somente para o dono.</div>
+    </div>
+    <div class="col-12 col-md-3">
+      <label class="rotulo" for="observacao">Observacao</label>
+      <input class="form-control foco" id="observacao" name="observacao" maxlength="300">
+    </div>
+  </div>
+
+  <h2 class="h6 mt-4 mb-2">Itens</h2>
+  <div id="itens">
+    <div class="row g-2 mb-2 linha-item">
+      <div class="col-12 col-md-8">
+        <label class="rotulo" for="produto-0">Produto</label>
+        <select class="form-select foco" id="produto-0" name="produto_id" required>
+          {% for p in produtos %}
+          <option value="{{ p.id }}">{{ p.nome }} ({{ p.unidade }}) - R$ {{ "%.2f"|format(p.preco_venda) }} - saldo {{ p.estoque_atual|g }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="rotulo" for="qtd-0">Quantidade</label>
+        <input class="form-control foco" id="qtd-0" name="quantidade" type="number" step="0.001" min="0.001" required>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex flex-wrap gap-2 mt-3">
+    <button class="btn btn-outline-secondary" type="button" id="add-item">+ Adicionar item</button>
+    <button class="btn btn-principal ms-auto" type="submit">Gerar orcamento</button>
+  </div>
+  <p class="text-muted small mt-3 mb-0">O preco unitario vem do cadastro do produto e nao pode ser editado no balcao.</p>
+</form>
+
+<script>
+  let n = 1;
+  const modelo = document.querySelector('.linha-item');
+  document.getElementById('add-item').addEventListener('click', () => {
+    const copia = modelo.cloneNode(true);
+    copia.querySelectorAll('select,input').forEach((campo) => {
+      campo.id = campo.id.replace(/-\d+$/, '-' + n);
+      if (campo.tagName === 'SELECT') { campo.value = modelo.querySelector('select').value; }
+      else { campo.value = ''; }
+    });
+    copia.querySelectorAll('label').forEach((l) => { l.htmlFor = l.htmlFor.replace(/-\d+$/, '-' + n); });
+    document.getElementById('itens').appendChild(copia);
+    n += 1;
+  });
+</script>
+{% endblock %}

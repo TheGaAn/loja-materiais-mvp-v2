@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block titulo %}Relatorio - Materiais Sao Jose{% endblock %}
+{% block conteudo %}
+<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+  <h1 class="h4 mb-0">Relatorio de giro</h1>
+  <span class="text-muted">ultimos {{ dias }} dias</span>
+  <a class="btn btn-outline-secondary ms-auto" href="/estoque">Voltar ao estoque</a>
+</div>
+
+<h2 class="h5 mt-4">Itens mais vendidos</h2>
+<div class="table-responsive">
+  <table class="table tabela align-middle">
+    <caption class="visually-hidden">Itens mais vendidos no periodo</caption>
+    <thead><tr><th scope="col">Produto</th><th scope="col" class="text-end">Quantidade</th><th scope="col" class="text-end">Valor</th></tr></thead>
+    <tbody>
+      {% for v in vendidos %}
+      <tr><td>{{ v.nome }}</td><td class="text-end">{{ v.qtd|g }}</td><td class="text-end">R$ {{ "%.2f"|format(v.valor) }}</td></tr>
+      {% else %}
+      <tr><td colspan="3">Nenhuma venda fechada no periodo.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<h2 class="h5 mt-4">Itens sem saida no periodo</h2>
+<div class="table-responsive">
+  <table class="table tabela align-middle">
+    <caption class="visually-hidden">Itens sem saida no periodo</caption>
+    <thead><tr><th scope="col">Produto</th><th scope="col" class="text-end">Saldo</th></tr></thead>
+    <tbody>
+      {% for p in parados %}
+      <tr><td>{{ p.nome }}</td><td class="text-end">{{ p.estoque_atual|g }}</td></tr>
+      {% else %}
+      <tr><td colspan="2">Todos os itens tiveram saida no periodo.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

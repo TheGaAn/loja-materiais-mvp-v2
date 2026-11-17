@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block titulo %}Produtos - Materiais Sao Jose{% endblock %}
+{% block conteudo %}
+<h1 class="h4 mb-4">Produtos</h1>
+
+{% if erro %}<div class="alert alert-danger">{{ erro }}</div>{% endif %}
+
+{% if perfil == 'dono' %}
+<form method="post" action="/produtos" class="card card-body shadow-sm mb-4">
+  <h2 class="h6 mb-3">Cadastrar produto</h2>
+  <div class="row g-3">
+    <div class="col-12 col-md-6">
+      <label class="rotulo" for="nome">Nome do produto</label>
+      <input class="form-control foco" id="nome" name="nome" required maxlength="120">
+    </div>
+    <div class="col-6 col-md-2">
+      <label class="rotulo" for="unidade">Unidade</label>
+      <input class="form-control foco" id="unidade" name="unidade" value="un" maxlength="10">
+    </div>
+    <div class="col-6 col-md-2">
+      <label class="rotulo" for="preco_custo">Preco de custo</label>
+      <input class="form-control foco" id="preco_custo" name="preco_custo" type="number" step="0.01" min="0" value="0">
+    </div>
+    <div class="col-6 col-md-2">
+      <label class="rotulo" for="preco_venda">Preco de venda</label>
+      <input class="form-control foco" id="preco_venda" name="preco_venda" type="number" step="0.01" min="0.01" required>
+    </div>
+    <div class="col-6 col-md-3">
+      <label class="rotulo" for="estoque_atual">Estoque atual</label>
+      <input class="form-control foco" id="estoque_atual" name="estoque_atual" type="number" step="0.001" min="0" value="0">
+    </div>
+    <div class="col-6 col-md-3">
+      <label class="rotulo" for="estoque_minimo">Estoque minimo</label>
+      <input class="form-control foco" id="estoque_minimo" name="estoque_minimo" type="number" step="0.001" min="0" value="0">
+    </div>
+    <div class="col-12 col-md-3 d-flex align-items-end">
+      <button class="btn btn-principal w-100" type="submit">Salvar produto</button>
+    </div>
+  </div>
+</form>
+{% else %}
+<div class="alert alert-secondary">Perfil atendente: consulta de produtos liberada, cadastro e preco sao do dono.</div>
+{% endif %}
+
+<div class="table-responsive">
+  <table class="table tabela align-middle">
+    <caption class="visually-hidden">Produtos cadastrados</caption>
+    <thead>
+      <tr><th scope="col">Produto</th><th scope="col">Un.</th><th scope="col" class="text-end">Custo</th>
+          <th scope="col" class="text-end">Venda</th><th scope="col" class="text-end">Saldo</th><th scope="col">Situacao</th><th scope="col"></th></tr>
+    </thead>
+    <tbody>
+      {% for p in produtos %}
+      <tr class="{{ 'table-warning' if p.ativo and p.estoque_atual <= p.estoque_minimo else '' }}">
+        <td>{{ p.nome }}</td>
+        <td>{{ p.unidade }}</td>
+        <td class="text-end">R$ {{ "%.2f"|format(p.preco_custo) }}</td>
+        <td class="text-end">R$ {{ "%.2f"|format(p.preco_venda) }}</td>
+        <td class="text-end">{{ p.estoque_atual|g }}</td>
+        <td>
+          {% if not p.ativo %}inativo
+          {% elif p.estoque_atual <= p.estoque_minimo %}no minimo
+          {% else %}ok{% endif %}
+        </td>
+        <td class="text-end">
+          {% if perfil == 'dono' and p.ativo %}
+          <form method="post" action="/produtos/{{ p.id }}/inativar" class="m-0">
+            <button class="btn btn-sm btn-outline-secondary" type="submit">Inativar</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
