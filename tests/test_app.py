@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import importlib
 import os
+import sqlite3
 
 import pytest
 from fastapi.testclient import TestClient
@@ -219,3 +220,23 @@ def test_logout_encerra_sessao(client):
     r = client.get("/", follow_redirects=False)
     assert r.status_code == 303
     assert r.headers["location"] == "/login"
+
+
+def test_backup_gera_copia_e_respeita_retencao(tmp_path, monkeypatch):
+    monkeypatch.setenv("LOJA_DB", str(tmp_path / "origem.db"))
+    from app import backup, db
+
+    importlib.reload(db)
+    db.init_db()
+    with db.connect() as conn:
+        conn.execute(
+            "INSERT INTO produtos (nome, unidade, preco_venda) VALUES ('Teste', 'un', 10)"
+        )
+    destino = tmp_path / "backups"
+    primeiro = backup.faz_backup(destino)
+    assert primeiro.exists() and primeiro.stat().st_size > 0
+    with sqlite3.connect(primeiro) as conn:
+        assert conn.execute("SELECT COUNT(*) FROM produtos").fetchone()[0] == 1
+    for _ in range(backup.MANTER + 2):
+        backup.faz_backup(destino)
+    assert len(list(destino.glob("loja-*.db"))) == backup.MANTER
