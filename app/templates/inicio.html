@@ -4,7 +4,7 @@
 <h1 class="h4 mb-4">Inicio</h1>
 
 {% if alertas %}
-<div class="alert alerta-minimo" role="alert">
+<div class="alert alerta-minimo" role="alert" aria-live="polite">
   <strong>&#9888; {{ alertas|length }} item(ns) no estoque minimo</strong>
   <ul class="mb-0 mt-2">
     {% for a in alertas %}
