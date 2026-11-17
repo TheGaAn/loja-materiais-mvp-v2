@@ -18,7 +18,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas
 
-from . import db, security
+from . import db, seed, security
 
 BASE = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(BASE / "templates"))
@@ -30,6 +30,7 @@ app = FastAPI(title="Materiais Sao Jose", version="1.0.0")
 @app.on_event("startup")
 def _startup() -> None:
     db.init_db()
+    seed.popular_se_vazio()
 
 
 def agora() -> str:

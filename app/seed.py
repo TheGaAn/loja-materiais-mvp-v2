@@ -28,6 +28,21 @@ CLIENTES = [
 ]
 
 
+def popular_se_vazio() -> bool:
+    """Popula o banco apenas quando ainda nao existe usuario.
+
+    Usado na subida da aplicacao em hospedagem: o banco novo nasce vazio e sem
+    isso a tela de login nao teria como ser acessada.
+    """
+    db.init_db()
+    with db.connect() as conn:
+        total = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+    if total:
+        return False
+    main()
+    return True
+
+
 def main() -> None:
     db.reset_db()
     with db.connect() as conn:

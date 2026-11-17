@@ -47,7 +47,7 @@ uma loja.
 python -m venv .venv
 . .venv/bin/activate
 pip install -r requirements.txt
-python -m app.seed          # cria o banco com dados ficticios de demonstracao
+python -m app.seed          # opcional: o app popula sozinho se o banco estiver vazio
 uvicorn app.main:app --reload
 ```
 
@@ -58,6 +58,23 @@ Acesse http://127.0.0.1:8000 e entre com um dos usuarios de demonstracao:
 
 As senhas acima existem apenas no seed de demonstracao. Em uso real, cadastre
 usuarios com senha propria e defina `LOJA_SEGREDO` com um valor aleatorio.
+
+## Deploy no Render
+
+O repositorio ja tem `render.yaml` e `Procfile`. Passos:
+
+1. criar um Blueprint no Render apontando para o repositorio (o `render.yaml` e lido automaticamente);
+2. o start command e `uvicorn app.main:app --host 0.0.0.0 --port $PORT`;
+3. na primeira subida o banco nasce vazio e `app.seed.popular_se_vazio()` cria
+   usuarios, produtos e clientes de demonstracao;
+4. `LOJA_SEGREDO` e gerado pela plataforma, entao a sessao nao usa o valor padrao.
+
+Limitacao do plano free: o disco e efemero, ou seja, o banco SQLite e recriado com
+os dados de demonstracao a cada deploy ou reinicio. Para uso real, trocar para
+PostgreSQL (ja previsto desde a Experiencia Pratica 2) ou anexar disco persistente.
+
+Verificacao de saude: `GET /health` devolve `{"status": "ok", "hora": ...}` e e o
+endpoint usado pelo health check do Render.
 
 ## Backup
 
