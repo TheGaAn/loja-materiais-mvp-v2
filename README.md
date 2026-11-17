@@ -59,13 +59,21 @@ Acesse http://127.0.0.1:8000 e entre com um dos usuarios de demonstracao:
 As senhas acima existem apenas no seed de demonstracao. Em uso real, cadastre
 usuarios com senha propria e defina `LOJA_SEGREDO` com um valor aleatorio.
 
+## Backup
+
+```bash
+python -m app.backup /caminho/do/backup
+```
+
+Gera copia consistente com a API de backup do SQLite e mantem as 7 ultimas.
+
 ## Testes
 
 ```bash
 python -m pytest -q
 ```
 
-15 testes cobrem login, hash de senha, permissao por perfil, preco vindo do
+16 testes cobrem login, hash de senha, permissao por perfil, preco vindo do
 servidor, limite de desconto, baixa de estoque, bloqueio de venda sem saldo,
 fechamento duplicado, PDF, alerta de minimo, relatorio e entrada de estoque.
 
@@ -89,7 +97,5 @@ recalculado por movimentos, o que permite auditar divergencia.
 ## Pendencias conhecidas
 
 - Emissao fiscal e integracao com fornecedor ficaram fora do escopo do MVP.
-- O backup diario do arquivo SQLite esta documentado no README, ainda sem script
-  automatizado de envio para fora da maquina.
 - O teste de usabilidade com o representante externo (roteiro da EP2) ainda nao
   foi executado; os criterios de aceitacao estao definidos.
